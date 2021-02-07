@@ -1,0 +1,32 @@
+FROM debian
+RUN apt-get -y update
+RUN apt-get install -y curl git openssl build-essential libssl-dev python3-pip python3 python2 python-pip supervisor
+RUN pip3 install pyicap icapserver
+RUN pip install pyicap icapserver
+WORKDIR /opt/proxy
+RUN chown -R proxy.proxy /opt/proxy
+RUN mkdir /etc/squid
+RUN mkdir /var/log/squid
+RUN mkdir /var/cache/squid
+RUN mkdir /var/spool/squid
+RUN curl -s http://www.squid-cache.org/Versions/v4/squid-4.12.tar.gz | tar -xvz
+RUN ./squid-4.12/configure --enable-icap-client --enable-ssl --with-openssl --enable-ssl-crtd --sysconfdir=/etc/squid --with-logdir=/var/log/squid --with-swapdir=/var/spool/squid --with-pidfile=/var/run/squid.pid
+RUN make && make install
+RUN /usr/local/squid/libexec/security_file_certgen -c -s /var/spool/squid/ssl_db -M 4MB
+RUN openssl req -newkey rsa:4096 -x509 -keyout /etc/squid/squid.key -out /etc/squid/squid.pem -days 365 -nodes -subj '/CN=localhost'
+RUN chmod 400 /etc/squid/squid.key
+RUN chown -R proxy.proxy /var/log/squid
+RUN chown -R proxy.proxy /var/spool/squid
+RUN chown -R proxy.proxy /etc/squid
+RUN chown -R proxy.proxy /var/cache/squid
+RUN mkdir -p /var/log/supervisor
+COPY icap0.py /opt/proxy/icap_service.py
+COPY squid.conf /etc/squid/squid.conf
+COPY supervisor_squid.conf /etc/supervisor/conf.d/supervisor_squid.conf
+COPY supervisor_icap.conf /etc/supervisor/conf.d/supervisor_icap.conf
+RUN /usr/local/squid/sbin/squid -N -z -f /etc/squid/squid.conf
+EXPOSE 3128
+RUN apt install -y procps vim
+RUN cat /etc/squid/squid.pem
+#CMD ["/usr/local/squid/sbin/squid","-f","/etc/squid/squid.conf"]
+CMD ["/usr/bin/supervisord"]
