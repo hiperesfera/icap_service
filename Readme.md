@@ -1,6 +1,11 @@
+# HTTP headers and POST payload inteception #
 
-In this deployment, a Squid proxy uses a local ICAP service written in Python to print HTTP hearders and POST payloads. 
+In this deployment, Squid proxy uses a local ICAP service written in Python to print HTTP headers and POST payloads. 
 
-docker build -t squid:icap -f squid_docker_file .
 
-docker run -it --rm --name icap  squid:icap /bin/bash
+Build container 
+`docker build -t squid:icap -f squid_docker_file .`
+
+Run container with an interactive session. 
+`docker run -it --rm --name icap  squid:icap /bin/bash`
+
