@@ -20,7 +20,7 @@ RUN chown -R proxy.proxy /var/spool/squid
 RUN chown -R proxy.proxy /etc/squid
 RUN chown -R proxy.proxy /var/cache/squid
 RUN mkdir -p /var/log/supervisor
-COPY icap0.py /opt/proxy/icap_service.py
+COPY icap_service.py /opt/proxy/icap_service.py
 COPY squid.conf /etc/squid/squid.conf
 COPY supervisor_squid.conf /etc/supervisor/conf.d/supervisor_squid.conf
 COPY supervisor_icap.conf /etc/supervisor/conf.d/supervisor_icap.conf
