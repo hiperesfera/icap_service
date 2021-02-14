@@ -10,6 +10,9 @@ Inspecting this content gives us full visibility inside the HTTP/S connections w
 ### Build container ###
 `docker build -t squid:icap -f squid_docker_file .`
 
+### Run container ###
+`docker run -d --rm --name icap  squid:icap`
+
 ### Run container with an interactive session for troubleshooting purposes###
 `docker run -it --rm --name icap  squid:icap /bin/bash`
 
