@@ -7,6 +7,7 @@ WORKDIR /opt/proxy
 RUN chown -R proxy.proxy /opt/proxy
 RUN mkdir /etc/squid
 RUN mkdir /var/log/squid
+RUN mkdir /var/log/icap
 RUN mkdir /var/cache/squid
 RUN mkdir /var/spool/squid
 RUN curl -s http://www.squid-cache.org/Versions/v4/squid-4.12.tar.gz | tar -xvz
@@ -16,6 +17,8 @@ RUN /usr/local/squid/libexec/security_file_certgen -c -s /var/spool/squid/ssl_db
 RUN openssl req -newkey rsa:4096 -x509 -keyout /etc/squid/squid.key -out /etc/squid/squid.pem -days 365 -nodes -subj '/CN=localhost'
 RUN chmod 400 /etc/squid/squid.key
 RUN chown -R proxy.proxy /var/log/squid
+RUN chown -R proxy.proxy /var/log/icap
+RUN chown -R proxy.proxy /var/log/supervisor
 RUN chown -R proxy.proxy /var/spool/squid
 RUN chown -R proxy.proxy /etc/squid
 RUN chown -R proxy.proxy /var/cache/squid
@@ -23,12 +26,11 @@ RUN mkdir -p /var/log/supervisor
 COPY icap_service.py .
 COPY icap_service.config .
 COPY squid.conf /etc/squid/squid.conf
+COPY supervisord.conf /etc/supervisor/supervisord.conf
 COPY supervisor_squid.conf /etc/supervisor/conf.d/supervisor_squid.conf
 COPY supervisor_icap.conf /etc/supervisor/conf.d/supervisor_icap.conf
-
 RUN /usr/local/squid/sbin/squid -N -z -f /etc/squid/squid.conf
-EXPOSE 3128
+
 RUN apt install -y procps vim
 RUN cat /etc/squid/squid.pem
-#CMD ["/usr/local/squid/sbin/squid","-f","/etc/squid/squid.conf"]
 CMD ["/usr/bin/supervisord"]
