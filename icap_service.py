@@ -4,6 +4,7 @@ import logging
 import re
 import ConfigParser
 import urllib
+import sys
 from pyicap import *
 
 configuration_file_path="/opt/proxy/icap_service.config"
@@ -15,7 +16,8 @@ config.read(configuration_file_path)
 aws_accounts = config.items("AWS Account IDs")
 
 logging.basicConfig(
-    filename='/var/log/icap/icap_service.log',
+    #filename='/var/log/icap/icap_service.log',
+    stream=sys.stdout,
     level=logging.NOTSET,
     format='%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S',
