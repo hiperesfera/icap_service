@@ -13,9 +13,13 @@ Inspecting this content gives us full visibility inside the HTTP/S connections w
 ### Run container with an interactive session for troubleshooting purposes###
 `docker run -it --rm --name icap  squid:icap /bin/bash`
 
-then, inside the container run
+then, once inside the container run:
 
 `/etc/init.d/supervisor start`
+
+you can also 'tail' the icap_service log file to see what is happening in real-time while testing your HTTP/S connections
+
+` tail -f /var/log/icap/icap_service.log`
 
 
 # Why we want to do this #
