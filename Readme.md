@@ -13,7 +13,13 @@ Inspecting this content gives us full visibility inside the HTTP/S connections w
 ### Run container ###
 `docker run -d --rm --name icap  squid:icap`
 
-### Run container with an interactive session for troubleshooting purposes###
+### Show the container logs ###
+Squid and the ICAP service are both managed by the Supervidord service. Supervisord is configured to run the in foreground (nodaemon) making logging avaiable via /dev/stdout. You can see the logs using:
+
+`docker logs -f icap`
+
+
+### Run container with an interactive session for troubleshooting purposes ###
 `docker run -it --rm --name icap  squid:icap /bin/bash`
 
 then, once inside the container run:
