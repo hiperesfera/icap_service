@@ -5,6 +5,7 @@
 
 While some CSP like Azure or GCP support the injecton of special HTTP headers at the perimeter proxy with the purpose of limiting the account's tenant you are connecting to, AWS and other cloud providers do not offer such an option. In general, there is no easy way to restric users to only connect to a given list of AWS tenant accounts.
 
+![alt text](https://github.com/hiperesfera/icap_service/blob/main/picture1.png?raw=true)
 
 
 Leveraging cookie interception at the perimeter proxy could be a way to tackle this problem. You will be surprised how much information is included in these Cookies, and how  we could leverage this information to create rules based on certain parameters.
