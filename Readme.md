@@ -1,7 +1,7 @@
 
 # How to limit what AWS tenant's acccounts your users can connect to from your corporate environment #
 
-Intercepting session cookies with Squid and an ICAP service could be de solution.
+## Intercepting session cookies with Squid and an ICAP service could be de solution ##
 
 While some CSP like Azure or GCP support the injecton of special HTTP headers at the perimeter proxy with the purpose of limiting the account's tenant you are connecting to, AWS and other cloud providers do not offer such an option. In general, there is no easy way to restric users to only connect to a given list of AWS tenant accounts.
 
