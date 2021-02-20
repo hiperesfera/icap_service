@@ -31,14 +31,14 @@ class ThreadingSimpleServer(SocketServer.ThreadingMixIn, ICAPServer):
 
 class ICAPHandler(BaseICAPRequestHandler):
 
-    def echo_OPTIONS(self):
+    def aws_OPTIONS(self):
         self.set_icap_response(200)
         self.set_icap_header('Methods', 'RESPMOD, REQMOD')
         self.set_icap_header('Service', 'ICAP Server' + ' ' + self._server_version)
         self.set_icap_header('Preview', '0')
         self.send_headers(False)
 
-    def echo_REQMOD(self):
+    def aws_REQMOD(self):
 
         self.set_icap_response(200)
         self.set_enc_request(' '.join(self.enc_req))
@@ -55,10 +55,6 @@ class ICAPHandler(BaseICAPRequestHandler):
                             logging.warning('AWS Account %s access has been denied', aws_requested_account)
                             self.send_error(403, message="Access Denied")
 
-        def echo_RESPMOD(self):
-            self.no_adaptation_required()
-
-
         if not self.has_body:
             self.send_headers(False)
             return
@@ -73,6 +69,8 @@ class ICAPHandler(BaseICAPRequestHandler):
                 buff += chunk
             #logging.info("HTTP POST BODY %s", buff)
 
+    def aws_RESPMOD(self):
+        self.no_adaptation_required()
 
 server = ThreadingSimpleServer(('127.0.0.1', 1344), ICAPHandler)
 
