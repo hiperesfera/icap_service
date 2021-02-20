@@ -5,17 +5,22 @@
 
 While some Cloud Service Providers such as Azure or GCP support the injection of special HTTP headers containing a list of cloud accounts users can access to, AWS and other cloud providers do not offer such an option. In general, there is no easy way to prevent users from accessing external cloud resources that do not belong to your organization. 
 
-This is one of the biggest security challenges when using cloud services providers in an enterprise environment, how to restrict employees to only access those cloud resources managed by the company. Cloud services providers could be become one of the biggest exfiltration channels if companies are not able to control how their internal employees interact with them
+This is one of the biggest security challenges when using cloud services providers in an enterprise environment, how to restrict employees to only access those cloud resources managed by the company. Cloud services providers could be become one of the biggest exfiltration channels if companies are not able to control how their internal employees interact with them. This has lead to different approach like completly blocking AWS 
 
 How can you block users from uploading corporate data to a personal S3 bucket or pasting source-code into an external AWS Codecommit without blocking access to the AWS Management Console entirely ?
+
 
 ![alt text](https://github.com/hiperesfera/icap_service/blob/main/picture1.png?raw=true)
 
 
+This has led to multiple approaches, from reducing access to the Cloud management console only to a handful of employees, to completely disable the management console and enforcing programmatic access only via SDLC channels. These approaches are great but they do not entirely remove the fact that access to an external Cloud account is still possible.
 
-Leveraging cookie interception at the perimeter proxy could be a way to tackle this problem. You will be surprised how much information is included in these Cookies, and how  we could leverage this information to create rules based on certain parameters.
 
-In this example, intercepting a simple AWS Cookie gives us the hability to allow or deny a connection to a certain AWS tenant ID.
+Leveraging cookie interception at the perimeter proxy could be a way to tackle this problem. You will be surprised how much information is included in these Cookies, and how we could easily leverage this information to create rules based on certain criteria or conditions.
+
+In this example, intercepting a simple AWS Cookie gives us the hability to allow or deny a connection to a certain AWS Account ID.
+
+[PICTURE]
 
 aws-infoUser Cookie contains the ARN of the IAM account connecting to the AWS environment. ARN is one of the main attributes when building IAM policies. They are unique identifiers for your AWS resources therefore, if we are able to inspect them at the proxy when users connect to AWS, it will be trivial using them to create rules containting the account IDSs your users can connect to. Or even go further, and restrict resources your users can use within a particular AWS account ID, but this would be reinventing the wheel as the IAM policies attached to your IAM account does that job for you.
 
