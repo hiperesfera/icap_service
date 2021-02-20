@@ -10,7 +10,8 @@ This is one of the biggest security challenges when using cloud services provide
 How can you block users from uploading corporate data to a personal S3 bucket or pasting source-code into an external AWS Codecommit without blocking access to the AWS Management Console entirely ?
 
 
-![alt text](https://github.com/hiperesfera/icap_service/blob/main/data/picture1.png?raw=true)
+<p align="center"><img src="https://github.com/hiperesfera/icap_service/blob/main/data/picture1.png?raw=true"/></p>
+
 
 
 This has led to multiple approaches, from reducing access to the Cloud management console only to a handful of employees, to completely disable the management console and enforcing programmatic access only via SDLC channels. These approaches are great but they do not entirely remove the fact that access to an external Cloud account is still possible.
