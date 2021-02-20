@@ -5,7 +5,7 @@
 
 While some Cloud Service Providers such as Azure or GCP support the injection of special HTTP headers containing a list of cloud accounts users can access to, AWS and other cloud providers do not offer such an option. In general, there is no easy way to prevent users from accessing external cloud resources that do not belong to your organization. 
 
-This is one of the biggest security challenges when using cloud services providers in an enterprise environment, how to restrict employees to only access those cloud resources managed by the company. Cloud services providers could be become one of the biggest exfiltration channels if companies are not able to control how their internal employees interact with them. This has lead to different approach like completly blocking AWS 
+This is one of the biggest security challenges when using cloud services providers in an enterprise environment, how to restrict employees to only access those cloud resources managed by the company. Cloud services providers could be become one of the biggest exfiltration channels if companies are not able to control how their internal employees interact with them. This has led to multiple approaches, from reducing access to the Cloud management console only to a handful of employees, to completely disable the Cloud management console and enforcing programmatic access only via SDLC. These approaches are great but they do not entirely remove the possibility that access to an external Cloud account is still possible.
 
 How can you block users from uploading corporate data to a personal S3 bucket or pasting source-code into an external AWS Codecommit without blocking access to the AWS Management Console entirely ?
 
