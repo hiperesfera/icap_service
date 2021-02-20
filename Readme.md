@@ -1,4 +1,35 @@
-# HTTP headers and POST payload interception and inspection #
+
+# How to limit what AWS tenant's acccounts your users can connect to from your corporate environment #
+
+Intercepting session cookies with Squid and an ICAP service could be de solution.
+
+While some CSP like Azure or GCP support the injecton of special HTTP headers at the perimeter proxy with the purpose of limiting the account's tenant you are connecting to, AWS and other cloud providers do not offer such an option. In general, there is no easy way to restric users to only connect to a given list of AWS tenant accounts.
+
+
+
+Leveraging cookie interception at the perimeter proxy could be a way to tackle this problem. You will be surprised how much information is included in these Cookies, and how  we could leverage this information to create rules based on certain parameters.
+
+In this example, intercepting a simple AWS Cookie gives us the hability to allow or deny a connection to a certain AWS tenant ID.
+
+aws-infoUser Cookie contains the ARN of the IAM account connecting to the AWS environment. ARN is one of the main attributes when building IAM policies. They are unique identifiers for your AWS resources therefore, if we are able to inspect them at the proxy when users connect to AWS, it will be trivial using them to create rules containting the account IDSs your users can connect to. Or even go further, and restrict resources your users can use within a particular AWS account ID, but this would be reinventing the wheel as the IAM policies attached to your IAM account does that job for you.
+
+
+
+In this example, I am using Squid and a ICAP service written in Python to PoC this idea. The main reason for using an ICAP service is that I did not manage to find an easy way for intercepting Cookies in Squid despite them being a HTTP header. If anyone found a way to do that, please do let me know as reducing the number of services in this deployment would significantly decrease the complexity and improve security :)
+
+
+
+
+
+
+
+
+
+
+
+
+
+## HTTP headers and POST payload interception and inspection ##
 
 First of all, intercepting encrypted connections like HTTPS is bad (very bad) as it defeats the purpose of using encrypted connections. Having said that, there may be special circumstances, mostly within enterprise environments, where we need to monitor which websites users are connecting to and what information is being exchanged. This is mostly to detect and block employees browsing non related work content, unethical or illegal content and also preventing data exfiltration attempts.
 
