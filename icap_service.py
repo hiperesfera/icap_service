@@ -7,8 +7,17 @@ import urllib
 import sys
 from pyicap import *
 
+# File containing list of AWS account/tenant IDs that users can access
 configuration_file_path="/opt/proxy/icap_service.config"
 
+# HTTP Deny message response
+msg = """
+<html>
+<body>
+The AWS Account/Tenant that you are trying to access is not allowed
+</body>
+</html>\r\n
+"""
 
 
 config = ConfigParser.ConfigParser(allow_no_value=True)
@@ -24,7 +33,6 @@ logging.basicConfig(
 )
 
 
-
 class ThreadingSimpleServer(SocketServer.ThreadingMixIn, ICAPServer):
     pass
 
@@ -33,7 +41,7 @@ class ICAPHandler(BaseICAPRequestHandler):
 
     def aws_OPTIONS(self):
         self.set_icap_response(200)
-        self.set_icap_header('Methods', 'RESPMOD, REQMOD')
+        self.set_icap_header('Methods', 'REQMOD')
         self.set_icap_header('Service', 'ICAP Server' + ' ' + self._server_version)
         self.set_icap_header('Preview', '0')
         self.send_headers(False)
@@ -41,20 +49,37 @@ class ICAPHandler(BaseICAPRequestHandler):
     def aws_REQMOD(self):
 
         self.set_icap_response(200)
-        self.set_enc_request(' '.join(self.enc_req))
+
+        #self.set_enc_request(' '.join(self.enc_req))
         for header in self.enc_req_headers:
             for value in self.enc_req_headers[header]:
+                # Set an encapsulated header to the given value
                 self.set_enc_header(header, value)
+
+                # checking if Cookie headers are present
                 if header.lower() == 'cookie':
                     aws_info_user_cookie = re.findall('aws-userInfo=.+username', urllib.unquote(value))
                     if aws_info_user_cookie:
                         #logging.info('AWS userInfo Cookie : %s :', aws_info_user_cookie[0])
+
+                        # Extracting the AWS account ID from the aws-userInfo Cookie
                         aws_requested_account = (re.findall('iam::([0-9]+):',aws_info_user_cookie[0]))[0]
                         logging.info('AWS Account : %s', aws_requested_account)
+
+                        # Check if the request is accessing an AWS account/tenant ID that is not allowlisted
+                        # Allowed AWS accounts are inside the icap_service.config file
                         if aws_requested_account and aws_requested_account not in dict(aws_accounts):
                             logging.warning('AWS Account %s access has been denied', aws_requested_account)
-                            self.send_error(403, message="Access Denied")
+                            # Set encapsulated status in response
+                            self.set_enc_status('HTTP/1.1 403 Forbidden')
+                            self.send_enc_error(403, body=msg)
+                            self.send_headers(False)
+                            return
 
+        # Set encapsulated request
+        self.set_enc_request(' '.join(self.enc_req))
+
+        # Getting the body of the request
         if not self.has_body:
             self.send_headers(False)
             return
@@ -68,9 +93,6 @@ class ICAPHandler(BaseICAPRequestHandler):
                     break
                 buff += chunk
             #logging.info("HTTP POST BODY %s", buff)
-
-    def aws_RESPMOD(self):
-        self.no_adaptation_required()
 
 server = ThreadingSimpleServer(('127.0.0.1', 1344), ICAPHandler)
 
