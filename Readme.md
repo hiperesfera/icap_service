@@ -3,30 +3,32 @@
 
 ## Intercepting HTTP Cookies with Squid and an ICAP service could be the solution ##
 
-While some Cloud Service Providers such as Azure or GCP support the injection of special HTTP headers containing a list of account IDs that users can access, AWS and other cloud providers do not offer such an option. In general, there is no easy way to prevent users from accessing external cloud resources that do not belong to your organization. 
+While some Cloud Service Providers such as Azure or GCP support the injection of special HTTP headers containing a list of account/tenant IDs that users can have access from an on-prem enterprise enviroment, AWS and other cloud providers do not offer such an option. In general, there is no easy way to prevent users from accessing external cloud resources that do not belong to your organization. 
 
 <br />
 <p align="center"><img src="https://github.com/hiperesfera/icap_service/blob/main/data/picture3.png?raw=true"/></p>
 <br />
 
-This is one of the biggest security challenges when using cloud services providers within an enterprise environment, how to restrict employees to only access cloud resources managed by the company. Cloud providers could become one of the biggest exfiltration channels if companies are not able to control how their internal employees interact with them. This has led to multiple approaches, from reducing access to the Cloud management console only to a handful of employees, to completely disable it and enforcing programmatic access only via SDLC. These approaches are great but they do not entirely remove the possibility that access to an external Cloud account is still possible.
+This is one of the biggest security challenges when using cloud services providers within an enterprise environment, how to restrict employees to only access cloud resources managed by your company. Cloud providers could become one of the biggest exfiltration channels if companies are not able to control how their  employees interact with them. This has led to multiple approaches, from reducing access to the Cloud management console only to a handful of employees, to completely disable it enforcing only programmatic access through version control processes. These are excellent approaches but they do not completely remove the possibility that access to an external Cloud account is still possible as the perimeter devices proxying these connections are not able to discern between legitimate and illegitimate Cloud accounts .
 
 <br />
 <p align="center"><img src="https://github.com/hiperesfera/icap_service/blob/main/data/picture1.png?raw=true"/></p>
 <br />
 
-How can you block users from uploading corporate data to a personal S3 bucket or pasting source code in an external AWS Codecommit without blocking access to the AWS Management Console entirely ?
+How do you prevent users from connecting to an AWS acccount that do not belong to your organization without blocking access to the AWS Management Console entirely ? ...
 
-
-
-
-Leveraging cookie interception at the perimeter proxy could be a way to tackle this problem. You will be surprised how much information is included in these Cookies, and how we could easily leverage this information to create rules based on certain criteria or conditions.
-
-In this example, intercepting a simple AWS Cookie gives us the hability to allow or deny a connection to a certain AWS Account ID.
+What if I tell you that you do not need to inject any HTTP headers containing the tenant ID/s that belong to your organization ?
+What if I tell you that this information is already there  in the form of a HTTP header ? 
 
 <br />
 <p align="center"><img src="https://github.com/hiperesfera/icap_service/blob/main/data/picture2.png"/></p>
 <br />
+
+Leveraging cookie interception at the perimeter proxy could be a way to tackle this problem. You will be surprised how much information is included in these Cookies, and how we could easily leverage this information to create rules based on certain criteria or conditions.
+
+In this example, intercepting a simple AWS Cookie gives us the hability to allow or deny a connection to a certain AWS Account ID. By all means, a similar approach can be used with other cloud providers like Alibaba cloud
+
+
 
 The Cookie **aws-userInfo** is always present for authenticated users in the AWS Management console. This Cookie contains the ARN of the IAM account connecting to the AWS environment. ARN is one of the main attributes when building IAM policies. They are unique identifiers for your AWS resources therefore, if we are able to inspect them at the proxy when users connect to AWS, it will be trivial using them to create rules containting the account IDSs your users can connect to. Or even go further, and restrict resources your users can use within a particular AWS account ID, but this would be reinventing the wheel as the IAM policies attached to your IAM account does that job for you.
 
