@@ -26,7 +26,9 @@ What if I tell you that this information is already there  in the form of a HTTP
 
 Leveraging cookie interception at the perimeter proxy could be a way to tackle this problem. You will be surprised how much information is included in these Cookies, and how we could easily leverage this information to create rules based on certain criteria or conditions.
 
-In this example, intercepting a simple AWS Cookie gives us the hability to allow or deny a connection to a certain AWS Account ID. By all means, a similar approach can be used with other cloud providers like Alibaba cloud
+In this example, intercepting a simple AWS Cookie gives us the hability to allow or deny a connection to a certain AWS Account ID. 
+
+By all means, a similar approach can be used with other cloud providers like Alibaba cloud, see below
 
 <br />
 <p align="center"><img src="https://github.com/hiperesfera/icap_service/blob/main/data/picture7.png"/></p>
