@@ -30,11 +30,15 @@ In this example, intercepting a simple AWS Cookie gives us the hability to allow
 
 The Cookie **aws-userInfo** is always present for authenticated users in the AWS Management console. This Cookie contains the ARN of the IAM account connecting to the AWS environment. ARN is one of the main attributes when building IAM policies. They are unique identifiers for your AWS resources therefore, if we are able to inspect them at the proxy when users connect to AWS, it will be trivial using them to create rules containting the account IDSs your users can connect to. Or even go further, and restrict resources your users can use within a particular AWS account ID, but this would be reinventing the wheel as the IAM policies attached to your IAM account does that job for you.
 
-
+<br />
+<p align="center"><img src="https://github.com/hiperesfera/icap_service/blob/main/data/picture4.png"/></p>
+<br />
 
 In this example, I am using Squid and a ICAP service written in Python to PoC this idea. The main reason for using an ICAP service is that I did not manage to find an easy way for intercepting Cookies in Squid despite them being a HTTP header. If anyone found a way to do that, please do let me know as reducing the number of services in this deployment would significantly decrease the complexity and improve security :)
 
-
+<br />
+<p align="center"><img src="https://github.com/hiperesfera/icap_service/blob/main/data/picture5.png"/></p>
+<br />
 
 
 
