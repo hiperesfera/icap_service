@@ -10,15 +10,6 @@ from pyicap import *
 # File containing list of AWS account/tenant IDs that users can access
 configuration_file_path="/opt/proxy/icap_service.config"
 
-# HTTP Deny message response
-msg = """
-<html>
-<body>
-The AWS Account/Tenant that you are trying to access is not allowed
-</body>
-</html>\r\n
-"""
-
 
 config = ConfigParser.ConfigParser(allow_no_value=True)
 config.read(configuration_file_path)
@@ -70,8 +61,16 @@ class ICAPHandler(BaseICAPRequestHandler):
                         # Allowed AWS accounts are inside the icap_service.config file
                         if aws_requested_account and aws_requested_account not in dict(aws_accounts):
                             logging.warning('AWS Account %s access has been denied', aws_requested_account)
-                            # Set encapsulated status in response
-                            self.set_enc_status('HTTP/1.1 403 Forbidden')
+
+                            # OPTION - Set encapsulated status in response instead of encoding an error message
+                            #self.set_enc_status('HTTP/1.1 403 Forbidden')
+
+                            # HTTP Deny message response
+                            msg = "<html><body style=\"background-color:Tomato\"><center>"
+                            msg += "<br><img src=\"https://s3.amazonaws.com/grational.com/error.gif\"></br></br></br>"
+                            msg += "You are not allowed to access AWS Account/Tenant ID <b>" + aws_requested_account + "</b>"
+                            msg += "</center></body></html>"
+
                             self.send_enc_error(403, body=msg)
                             self.send_headers(False)
                             return
