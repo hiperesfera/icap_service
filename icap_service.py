@@ -34,6 +34,10 @@ class ICAPHandler(BaseICAPRequestHandler):
         self.set_icap_response(200)
         self.set_icap_header('Methods', 'REQMOD')
         self.set_icap_header('Service', 'ICAP Server' + ' ' + self._server_version)
+
+        # https://tools.ietf.org/html/rfc3507#section-4.5
+        # Preview consisting of only encapsulated HTTP headers, the ICAP client would add the following header to the ICAP request
+        # It will send a zero-length chunk and stop and wait for a "go ahead" to send more encapsulated body bytes to the ICAP server.
         self.set_icap_header('Preview', '0')
         self.send_headers(False)
 
@@ -96,7 +100,7 @@ class ICAPHandler(BaseICAPRequestHandler):
 server = ThreadingSimpleServer(('127.0.0.1', 1344), ICAPHandler)
 
 try:
-    while 1:
+    while True:
         server.handle_request()
-except KeyboardInterrupt:
-    print "Finished"
+except:
+    print "Exception happened during processing of icap_service.py"
