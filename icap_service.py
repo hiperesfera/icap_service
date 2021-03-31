@@ -1,9 +1,9 @@
 import random
-import SocketServer
+import socketserver
 import logging
 import re
-import ConfigParser
-import urllib
+import configparser
+import urllib.parse
 import sys
 from pyicap import *
 
@@ -11,7 +11,7 @@ from pyicap import *
 configuration_file_path="/opt/proxy/icap_service.config"
 
 
-config = ConfigParser.ConfigParser(allow_no_value=True)
+config = configparser.ConfigParser(allow_no_value=True)
 config.read(configuration_file_path)
 aws_accounts = config.items("AWS Account IDs")
 
@@ -24,7 +24,7 @@ logging.basicConfig(
 )
 
 
-class ThreadingSimpleServer(SocketServer.ThreadingMixIn, ICAPServer):
+class ThreadingSimpleServer(socketserver.ThreadingMixIn, ICAPServer):
     pass
 
 
@@ -32,13 +32,13 @@ class ICAPHandler(BaseICAPRequestHandler):
 
     def aws_OPTIONS(self):
         self.set_icap_response(200)
-        self.set_icap_header('Methods', 'REQMOD')
-        self.set_icap_header('Service', 'ICAP Server' + ' ' + self._server_version)
+        self.set_icap_header(b'Methods', b'REQMOD')
+        self.set_icap_header(b'Service', b'ICAP Server 1.0')
 
         # https://tools.ietf.org/html/rfc3507#section-4.5
         # Preview consisting of only encapsulated HTTP headers, the ICAP client would add the following header to the ICAP request
         # It will send a zero-length chunk and stop and wait for a "go ahead" to send more encapsulated body bytes to the ICAP server.
-        self.set_icap_header('Preview', '0')
+        self.set_icap_header(b'Preview', b'0')
         self.send_headers(False)
 
     def aws_REQMOD(self):
@@ -52,8 +52,8 @@ class ICAPHandler(BaseICAPRequestHandler):
                 self.set_enc_header(header, value)
 
                 # checking if Cookie headers are present
-                if header.lower() == 'cookie':
-                    aws_info_user_cookie = re.findall('aws-userInfo=.+username', urllib.unquote(value))
+                if header.lower() == b'cookie':
+                    aws_info_user_cookie = re.findall('aws-userInfo=.+username', urllib.parse.unquote(value.decode('utf-8')))
                     if aws_info_user_cookie:
                         #logging.info('AWS userInfo Cookie : %s :', aws_info_user_cookie[0])
 
@@ -67,7 +67,7 @@ class ICAPHandler(BaseICAPRequestHandler):
                             logging.warning('AWS Account %s access has been denied', aws_requested_account)
 
                             # OPTION - Set encapsulated status in response instead of encoding an error message
-                            #self.set_enc_status('HTTP/1.1 403 Forbidden')
+                            #self.set_enc_status(b'HTTP/1.1 403 Forbidden')
 
                             # HTTP Deny message response
                             msg = "<html><body style=\"background-color:Tomato\"><center>"
@@ -80,7 +80,7 @@ class ICAPHandler(BaseICAPRequestHandler):
                             return
 
         # Set encapsulated request
-        self.set_enc_request(' '.join(self.enc_req))
+        self.set_enc_request(b' '.join(self.enc_req))
 
         # Getting the body of the request
         if not self.has_body:
@@ -88,19 +88,19 @@ class ICAPHandler(BaseICAPRequestHandler):
             return
         else:
             self.send_headers(True)
-            buff=''
+            buff=b''
             while True:
                 chunk = self.read_chunk()
                 self.send_chunk(chunk)
-                if chunk == '':
+                if chunk == b'':
                     break
                 buff += chunk
             #logging.info("HTTP POST BODY %s", buff)
 
-server = ThreadingSimpleServer(('127.0.0.1', 1344), ICAPHandler)
+server = ThreadingSimpleServer((b'127.0.0.1', 1344), ICAPHandler)
 
 try:
     while True:
         server.handle_request()
 except:
-    print "Exception happened during processing of icap_service.py"
+    print("Exception happened during processing of icap_service.py")
