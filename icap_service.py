@@ -13,7 +13,9 @@ configuration_file_path="/opt/proxy/icap_service.config"
 
 config = configparser.ConfigParser(allow_no_value=True)
 config.read(configuration_file_path)
-aws_accounts = config.items("AWS Account IDs")
+aws_account_ids = config.items("AWS Account IDs")
+aws_api_ids = config.items("AWS API IDs")
+
 
 logging.basicConfig(
     #filename='/var/log/icap/icap_service.log',
@@ -51,6 +53,23 @@ class ICAPHandler(BaseICAPRequestHandler):
                 # Set an encapsulated header to the given value
                 self.set_enc_header(header, value)
 
+                #logging.info("HTTP HEADER %s %s", header, value)
+
+
+                # API ACCESS CHECK - START
+                # checking API Authentication header
+                if header.lower() == b'host' and b'.amazonaws.com' in value:
+                    aws_api_auth_header_credential = re.findall('Credential=(.+?)/', urllib.parse.unquote((self.enc_req_headers[b'authorization'][0]).decode('utf-8')))
+                    if aws_api_auth_header_credential and aws_api_auth_header_credential[0].lower() not in dict(aws_api_ids):
+                        logging.warning('AWS Key ID %s access has been denied', aws_api_auth_header_credential[0])
+                        msg = "AWS Key ID" + aws_api_auth_header_credential[0] + "is not allowed to access AWS"
+                        self.send_enc_error(403, body=msg)
+                        self.send_headers(False)
+                        return
+                # API ACCESS CHECK - END
+
+
+                # WEB CONSOLE ACCESS CHECK - START
                 # checking if Cookie headers are present
                 if header.lower() == b'cookie':
                     aws_info_user_cookie = re.findall('aws-userInfo=.+username', urllib.parse.unquote(value.decode('utf-8')))
@@ -63,7 +82,7 @@ class ICAPHandler(BaseICAPRequestHandler):
 
                         # Check if the request is accessing an AWS account/tenant ID that is not allowlisted
                         # Allowed AWS accounts are inside the icap_service.config file
-                        if aws_requested_account and aws_requested_account not in dict(aws_accounts):
+                        if aws_requested_account and aws_requested_account not in dict(aws_account_ids):
                             logging.warning('AWS Account %s access has been denied', aws_requested_account)
 
                             # OPTION - Set encapsulated status in response instead of encoding an error message
@@ -78,6 +97,8 @@ class ICAPHandler(BaseICAPRequestHandler):
                             self.send_enc_error(403, body=msg)
                             self.send_headers(False)
                             return
+                # WEB CONSOLE ACCESS CHECK - END
+
 
         # Set encapsulated request
         self.set_enc_request(b' '.join(self.enc_req))
@@ -95,7 +116,7 @@ class ICAPHandler(BaseICAPRequestHandler):
                 if chunk == b'':
                     break
                 buff += chunk
-            #logging.info("HTTP POST BODY %s", buff)
+            #logging.info("HTTP BODY %s", buff)
 
 server = ThreadingSimpleServer((b'127.0.0.1', 1344), ICAPHandler)
 
