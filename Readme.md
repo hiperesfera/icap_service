@@ -1,7 +1,15 @@
 
 # How to limit what AWS Acccounts users can access from your corporate environment #
 
-## Intercepting HTTP Cookies with Squid and an ICAP service could be the solution ##
+## Programmatic access restrictions ##
+
+Documentation in progress ...
+
+
+
+## Web Console access restrictions ##
+
+### Intercepting HTTP Cookies with Squid and an ICAP service could be the solution ###
 
 While some Cloud Service Providers such as Azure or GCP support the injection of special HTTP headers containing a list of account/tenant IDs that users can have access from an on-prem enterprise enviroment, AWS and other cloud providers do not offer such an option. In general, there is no easy way to prevent users from accessing external cloud resources that do not belong to your organization. 
 
